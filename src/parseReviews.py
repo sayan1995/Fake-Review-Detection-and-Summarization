@@ -2,12 +2,12 @@ import re
 import os
 import json
 
-with open('../datasets/Musical_Instruments_5.json', 'r') as f:
+with open('../datasets/Cell_Phones_and_Accessories_5.json', 'r') as f:
 	json_data = f.read()
 	list=re.findall(r'(\{.*})',json_data)
 	for i in list:
 		data = json.loads(i)
-		filename = '../datasets/Musical-Instruments/'+data['asin']+'.txt'
+		filename = '../datasets/CellPhones1/'+data['asin']+'.txt'
 		if os.path.exists(filename):
 			append_write = 'a' # append if already exists
 			ff = open(filename,append_write)

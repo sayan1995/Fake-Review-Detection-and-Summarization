@@ -64,8 +64,11 @@ class Summarization:
 def summaryGen(fileName,domain,debugging=False):
 	global debug
 	debug=debugging
+	content=""
 	f=open("../datasets/"+domain+"/"+fileName+".txt","r")
-	content=f.read()
+	for line in f:
+		if "helpful:" not in line and "score:" not in line and "reviewerID:" not in line:
+			content+=line
 	print "Before summarization.....\n"
 	sleep(2)
 	print content

@@ -41,9 +41,11 @@ def summaryGen(fileName,domain,gram=5,debug=False):
 	vocabulary = []
 	docs = {}
 	all_tips = []
-
+	text = "" 
 	f=open("../datasets/"+domain+"/"+fileName+".txt","r")
-	text=f.read()
+	for line in f:
+		if "helpful:" not in line and "score:" not in line and "reviewerID:" not in line:
+			text+=line
 
 	tokens = tokenizer.tokenize(text)
 
