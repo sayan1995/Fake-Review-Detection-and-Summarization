@@ -13,13 +13,13 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 import numpy as np
+import pickle
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from progressbar import ProgressBar
 pbar = ProgressBar()
-def evaluate():
-	ff = open('../datasets/ML/musical_kmeans_label.csv','w+')
-	path = '../datasets/ML/musical_instruments.csv'
+def evaluate(writepath,path):
+	ff = open('../datasets/ML/'+writepath+'_kmeans_label.csv','w+')
 	cols = pandas.read_csv(path, nrows=1).columns
 	dataset = pandas.read_csv(path,usecols=cols[1:])
 	reviewers = pandas.read_csv(path,usecols=cols[0:1]).values
@@ -80,3 +80,65 @@ def evaluate():
 
 
 	plt.show()
+
+def predict(ch,domain):
+	newpath = '../datasets/ML/'+domain+'.csv'
+	cols = pandas.read_csv(newpath).columns
+	X_validation = pandas.read_csv(newpath,usecols=cols[1:])
+	scoring = 'accuracy'
+
+	if ch==1:	
+		knn = pickle.load(open( "../datasets/ML/Models/knn.p", "rb" ))
+		predictions = knn.predict(X_validation)
+		with open(newpath) as fin, open('../datasets/ML/'+domain+'_label.csv', 'w') as fout:
+			index = 0
+			header = fin.readline()
+			fout.write("ReviewerID,Negative,Neutral,Positive,Helpfulness,Burst,Count,Label\n")
+			for line in iter(fin.readline, ''):
+			    fout.write(line.replace('\n', ',' + str(predictions[index]) + '\n'))
+			    index += 1
+
+	elif ch==2:
+		svc = pickle.load(open( "../datasets/ML/Models/svc.p", "rb" ))
+		predictions = svc.predict(X_validation)
+		with open(newpath) as fin, open('../datasets/ML/'+domain+'_label1.csv', 'w') as fout:
+			index = 0
+			header = fin.readline()
+			fout.write("ReviewerID,Negative,Neutral,Positive,Helpfulness,Burst,Count,Label\n")
+			for line in iter(fin.readline, ''):
+			    fout.write(line.replace('\n', ',' + str(predictions[index]) + '\n'))
+			    index += 1
+
+	elif ch==3:
+		cart = pickle.load(open( "../datasets/ML/Models/cart.p", "rb" ))
+		predictions = cart.predict(X_validation)	
+		with open(newpath) as fin, open('../datasets/ML/'+domain+'_label.csv', 'w') as fout:
+			index = 0
+			header = fin.readline()
+			fout.write("ReviewerID,Negative,Neutral,Positive,Helpfulness,Burst,Count,Label\n")
+			for line in iter(fin.readline, ''):
+			    fout.write(line.replace('\n', ',' + str(predictions[index]) + '\n'))
+			    index += 1
+
+	elif ch==4:
+		nb = pickle.load(open( "../datasets/ML/Models/nb.p", "rb" ))
+		predictions = nb.predict(X_validation)	
+		with open(newpath) as fin, open('../datasets/ML/'+domain+'_label.csv', 'w') as fout:
+			index = 0
+			header = fin.readline()
+			fout.write("ReviewerID,Negative,Neutral,Positive,Helpfulness,Burst,Count,Label\n")
+			for line in iter(fin.readline, ''):
+			    fout.write(line.replace('\n', ',' + str(predictions[index]) + '\n'))
+			    index += 1
+
+	elif ch==5:
+		lda = pickle.load(open( "../datasets/ML/Models/lda.p", "rb" ))
+		predictions = lda.predict(X_validation)	
+		with open(newpath) as fin, open('../datasets/ML/'+domain+'_label.csv', 'w') as fout:
+			index = 0
+			header = fin.readline()
+			fout.write("ReviewerID,Negative,Neutral,Positive,Helpfulness,Burst,Count,Label\n")
+			for line in iter(fin.readline, ''):
+			    fout.write(line.replace('\n', ',' + str(predictions[index]) + '\n'))
+			    index += 1
+

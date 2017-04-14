@@ -1,4 +1,5 @@
 import re
+import pickle
 import operator
 
 def is_number(s):
@@ -138,8 +139,11 @@ if __name__=='__main__':
 	print keywords
 
 def extract_keywords(domain,prodID):
-	f=open("../datasets/"+domain+"/"+prodID+".txt","r")
-	text=f.read()
+	brands_reviews = pickle.load( open( "../datasets/"+domain.lower()+".pickle", "rb" ) )
+	review_data = brands_reviews[prodID]
+	text = ""
+	for i in review_data:
+		text+=i["review"]
 	extraction_instance = KeywordExtraction("../stoplist.txt")
 	keywords_data_score = extraction_instance.run(text)
 	keywords = [i[0] for i in keywords_data_score]

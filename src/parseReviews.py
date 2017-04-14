@@ -1,36 +1,36 @@
 import re
 import os
 import json
+import gzip
+import pickle
 
-with open('../datasets/Cell_Phones_and_Accessories_5.json', 'r') as f:
-	json_data = f.read()
-	list=re.findall(r'(\{.*})',json_data)
-	for i in list:
-		data = json.loads(i)
-		filename = '../datasets/CellPhones1/'+data['asin']+'.txt'
-		if os.path.exists(filename):
-			append_write = 'a' # append if already exists
-			ff = open(filename,append_write)
-			helpfulness = float(data['helpful'][0]/data['helpful'][1]) if data['helpful'][1] else 0
-			ff.write("helpful"+":"+str(helpfulness)+".")
-			ff.write("\n")
-			ff.write("score"+":"+str(data['overall'])+".")
-			ff.write("\n")
-			ff.write("reviewerID"+":"+data['reviewerID']+".")
-			ff.write("\n")
-			ff.write(data['reviewText'])
-			ff.write("\n\n")
+@profile
+def parse(path):
+	g = gzip.open(path, 'r')
+	brand_reviews = {}
+	reviewcount = 0
+	for l in g:
+		if(reviewcount <= 40000):
+			json_data = json.dumps(eval(l))
+			data = re.match(r'(\{.*})',json_data)
+			json_obj = json.loads(data.group())
+			obj = {"helpful":0.0,"score":0.0,"reviewerID":"","review":""}
+			helpfulness = float(json_obj['helpful'][0]/json_obj['helpful'][1]) if json_obj['helpful'][1] else 0
+			if "overall" in json_obj and "reviewerID" in json_obj and "reviewText" in json_obj:
+				obj["helpful"] = helpfulness
+				obj["score"] = json_obj["overall"]
+				obj["reviewerID"] = json_obj["reviewerID"]
+				obj["review"] = json_obj["reviewText"]
+				if json_obj["asin"] not in brand_reviews:
+					brand_reviews[json_obj["asin"]] = []
+				brand_reviews[json_obj["asin"]].append(obj)
+				#yield json_obj["asin"]+"|"+json_obj["brand"]+"|"+json_obj["title"]
+			reviewcount+=1
 		else:
-			append_write = 'w' # make a new file if not
-			ff = open(filename,append_write)
-			helpfulness = float(data['helpful'][0]/data['helpful'][1]) if data['helpful'][1] else 0
-			ff.write("helpful"+":"+str(helpfulness)+".")
-			ff.write("\n")
-			ff.write("score"+":"+str(data['overall'])+".")
-			ff.write("\n")
-			ff.write("reviewerID"+":"+data['reviewerID']+".")
-			ff.write("\n")
-			ff.write(data['reviewText'])
-			ff.write("\n\n")
+			break
+
+	filehandler = open("../datasets/movies&tv.pickle","wb")
+	pickle.dump(brand_reviews,filehandler)	
+parse("../datasets/Gzips/movies&tv.json.gz")
 		
 
